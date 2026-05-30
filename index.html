@@ -7,26 +7,26 @@
   <style>
     :root {
       --bg: #f9f7f4;
-      --bg-accent: #eef3f1;
-      --panel: rgba(255, 255, 255, 0.78);
-      --panel-strong: rgba(255, 255, 255, 0.92);
-      --line: #e2e4e6;
-      --line-strong: #bfc6ca;
-      --text: #4a4a4a;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-soft: rgba(255, 255, 255, 0.76);
+      --surface-pressed: rgba(44, 95, 95, 0.08);
+      --text: #474a4c;
+      --muted: #8a8f93;
       --player: #2c5f5f;
-      --muted: #7e8388;
-      --selected: #e6f0ef;
-      --peer: #f1f6f6;
-      --same: #edf5ee;
-      --conflict: #fef0f0;
-      --conflict-line: #e57373;
-      --button: rgba(0, 0, 0, 0.05);
-      --button-active: rgba(44, 95, 95, 0.12);
-      --shadow: 0 18px 40px rgba(70, 88, 87, 0.09);
+      --line: #ededef;
+      --line-strong: #d0d3d6;
+      --frame: #dcdee0;
+      --selected: #e7efed;
+      --peer: #f4f6f5;
+      --same: #edf3f1;
+      --conflict: #faefef;
+      --conflict-line: #d9b5b5;
+      --shadow: 0 14px 34px rgba(88, 95, 99, 0.08);
+      --shadow-soft: 0 8px 20px rgba(88, 95, 99, 0.05);
       --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 16px;
-      --radius-sm: 10px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
@@ -39,10 +39,7 @@
     body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(circle at top left, rgba(230, 240, 239, 0.85), transparent 34%),
-        radial-gradient(circle at top right, rgba(255, 248, 240, 0.9), transparent 28%),
-        linear-gradient(180deg, #f9f7f4 0%, #f1f4f4 100%);
+      background: linear-gradient(180deg, #f9f7f4 0%, #f8f6f3 100%);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
@@ -53,116 +50,125 @@
       padding: 20px 14px calc(28px + var(--safe-bottom));
     }
 
-    button,
-    select {
+    button {
       font: inherit;
     }
 
     .app {
       width: min(100%, 520px);
       display: grid;
-      gap: 14px;
-    }
-
-    .topbar,
-    .card,
-    .toolbar,
-    .number-panel,
-    .settings-sheet,
-    .toast,
-    .victory-card {
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      gap: 16px;
     }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 6px 4px;
+      gap: 12px;
+      padding: 8px 2px 0;
     }
 
     .brand {
-      display: grid;
-      gap: 2px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      min-width: 0;
     }
 
     .title {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.55rem;
       font-weight: 650;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
     }
 
-    .subtitle {
-      margin: 0;
-      font-size: 0.88rem;
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
       color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 0.01em;
+    }
+
+    .meta span {
+      white-space: nowrap;
+    }
+
+    .meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #c8cbce;
+      flex-shrink: 0;
     }
 
     .icon-button,
     .action-button,
     .number-button,
     .sheet-close,
-    .chip {
+    .chip,
+    .toggle {
       min-width: 44px;
       min-height: 44px;
       border: 0;
-      border-radius: 999px;
-      background: var(--button);
       color: var(--text);
-      transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
-      box-shadow: none;
+      transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
     }
 
     .icon-button:active,
     .action-button:active,
     .number-button:active,
     .sheet-close:active,
-    .chip:active {
-      transform: scale(0.96);
+    .chip:active,
+    .toggle:active {
+      transform: scale(0.97);
     }
 
     .icon-button {
+      border-radius: 999px;
       padding: 0 14px;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow-soft);
     }
 
-    .card {
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.65);
-      border-radius: var(--radius-xl);
+    .card,
+    .toolbar,
+    .number-panel,
+    .settings-sheet,
+    .toast,
+    .victory-card {
+      background: var(--surface);
       box-shadow: var(--shadow);
     }
 
-    .status-card {
+    .card {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .board-shell {
+      position: relative;
+      padding: 14px;
+    }
+
+    .board-status {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 14px 18px;
-    }
-
-    .status-group {
-      display: grid;
-      gap: 4px;
-    }
-
-    .status-label {
-      font-size: 0.82rem;
+      gap: 10px;
+      padding: 0 4px 12px;
       color: var(--muted);
+      font-size: 0.8rem;
     }
 
-    .status-value {
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .board-card {
-      padding: 16px;
+    .board-status strong {
+      color: var(--text);
+      font-weight: 560;
     }
 
     .board {
@@ -170,10 +176,10 @@
       grid-template-columns: repeat(9, 1fr);
       width: 100%;
       aspect-ratio: 1 / 1;
-      border: 1.5px solid var(--line-strong);
+      border: 1px solid var(--frame);
       border-radius: 24px;
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.9);
+      background: #ffffff;
       position: relative;
       isolation: isolate;
     }
@@ -181,29 +187,30 @@
     .cell {
       position: relative;
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.82);
+      background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
       cursor: pointer;
-      overflow: hidden;
       user-select: none;
+      overflow: hidden;
+      transition: background-color 120ms ease, box-shadow 120ms ease, outline-color 120ms ease;
     }
 
     .cell[data-box-right="true"] {
-      border-right-color: var(--line-strong);
-      border-right-width: 1.5px;
+      border-right: 1.5px solid var(--line-strong);
     }
 
     .cell[data-box-bottom="true"] {
-      border-bottom-color: var(--line-strong);
-      border-bottom-width: 1.5px;
+      border-bottom: 1.5px solid var(--line-strong);
     }
 
     .cell.selected {
       background: var(--selected);
-      box-shadow: inset 0 0 0 2px rgba(44, 95, 95, 0.13);
+      outline: 2px solid rgba(44, 95, 95, 0.72);
+      outline-offset: -2px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(44, 95, 95, 0.08);
       z-index: 2;
     }
 
@@ -217,29 +224,25 @@
 
     .cell.given .value {
       color: var(--text);
-      font-weight: 400;
+      font-weight: 430;
     }
 
     .cell.player .value {
       color: var(--player);
-      font-weight: 550;
+      font-weight: 560;
     }
 
     .cell.conflict {
       background: var(--conflict);
-      box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0.2);
+      box-shadow: inset 0 0 0 1.5px rgba(217, 181, 181, 0.55);
     }
 
     .cell.conflict-flash {
-      animation: conflictFlash 420ms ease;
+      animation: conflictFlash 260ms ease;
     }
 
-    .cell.shake {
-      animation: shake 340ms ease;
-    }
-
-    .cell.fill-pop .value {
-      animation: fillPop 240ms ease;
+    .cell.fill-pop {
+      animation: fillPop 180ms ease;
     }
 
     .cell.win-glow {
@@ -247,31 +250,30 @@
     }
 
     .value {
-      font-size: clamp(1.1rem, 4vw, 1.65rem);
+      font-size: clamp(1.1rem, 4vw, 1.68rem);
       line-height: 1;
       font-variant-numeric: tabular-nums;
-      transform-origin: center;
     }
 
     .notes {
       position: absolute;
-      inset: 5px;
+      inset: 6px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 1px;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 2px;
       align-items: center;
       justify-items: center;
-      color: #888;
-      font-size: clamp(0.48rem, 1.95vw, 0.65rem);
+      color: #8b8f93;
+      font-size: clamp(0.48rem, 1.8vw, 0.62rem);
       line-height: 1;
       pointer-events: none;
     }
 
     .note {
       opacity: 0;
-      transform: scale(0.85);
-      transition: opacity 140ms ease, transform 140ms ease;
+      transform: scale(0.88);
+      transition: opacity 120ms ease, transform 120ms ease;
     }
 
     .note.visible {
@@ -281,80 +283,87 @@
 
     .toolbar {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
-      padding: 10px;
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.65);
+      padding: 12px;
       border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+    }
+
+    .tool-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tool-row.primary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tool-row.secondary {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .action-button {
-      padding: 10px 8px;
-      border-radius: 18px;
-      display: grid;
-      gap: 2px;
-      justify-items: center;
-      background: rgba(255, 255, 255, 0.55);
-    }
-
-    .action-button strong {
-      font-size: 0.92rem;
-      font-weight: 600;
-    }
-
-    .action-button span {
-      font-size: 0.72rem;
-      color: var(--muted);
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.66);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.7);
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.94rem;
+      font-weight: 560;
     }
 
     .action-button.active {
-      background: var(--button-active);
+      background: rgba(44, 95, 95, 0.12);
       color: var(--player);
       box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.14);
     }
 
     .action-button:disabled,
     .number-button:disabled {
-      opacity: 0.4;
+      opacity: 0.38;
     }
 
     .number-panel {
       position: sticky;
       bottom: 0;
       display: grid;
-      gap: 10px;
-      padding: 12px;
-      background: var(--panel-strong);
-      border: 1px solid rgba(255, 255, 255, 0.72);
+      gap: 12px;
+      padding: 14px;
       border-radius: var(--radius-xl);
-      box-shadow: 0 18px 46px rgba(76, 89, 93, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.74);
+    }
+
+    .number-panel.disabled {
+      opacity: 0.55;
     }
 
     .number-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
 
+    .number-footer {
+      display: flex;
+      justify-content: center;
+    }
+
     .number-button {
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      font-size: 1.05rem;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.82);
+      color: var(--player);
+      font-size: 1.08rem;
       font-weight: 650;
       font-variant-numeric: tabular-nums;
-      color: var(--player);
-      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
     }
 
     .number-button.selected-value {
-      background: rgba(44, 95, 95, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
-    }
-
-    .number-button.note-target {
-      color: var(--text);
+      background: rgba(44, 95, 95, 0.11);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.16);
     }
 
     .number-button.note-target::after {
@@ -363,26 +372,23 @@
       color: var(--muted);
     }
 
-    .number-button.disabled-value {
-      color: #b3b8bc;
-    }
-
-    .panel-hint {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      padding: 0 4px;
+    .number-button.clear-button {
+      min-width: 132px;
+      padding: 0 18px;
+      color: var(--text);
+      gap: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(41, 49, 52, 0.18);
+      background: rgba(55, 60, 64, 0.14);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 220ms ease;
+      transition: opacity 180ms ease;
     }
 
     .overlay.open {
@@ -395,23 +401,21 @@
       left: 50%;
       bottom: calc(16px + var(--safe-bottom));
       width: min(calc(100% - 28px), 520px);
-      transform: translate(-50%, 16px);
+      transform: translate(-50%, 18px);
       opacity: 0;
       pointer-events: none;
-      background: rgba(250, 248, 245, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.7);
       border-radius: 28px;
-      box-shadow: 0 26px 60px rgba(58, 66, 70, 0.2);
-      transition: transform 220ms ease, opacity 220ms ease;
+      border: 1px solid rgba(255, 255, 255, 0.8);
       padding: 18px;
       display: grid;
       gap: 16px;
+      transition: transform 180ms ease, opacity 180ms ease;
     }
 
     .settings-sheet.open {
+      transform: translate(-50%, 0);
       opacity: 1;
       pointer-events: auto;
-      transform: translate(-50%, 0);
     }
 
     .sheet-head {
@@ -423,8 +427,13 @@
 
     .sheet-title {
       margin: 0;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
       font-weight: 650;
+    }
+
+    .sheet-close {
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
     }
 
     .sheet-group {
@@ -445,32 +454,37 @@
     }
 
     .chip {
+      border-radius: 999px;
       padding: 0 18px;
-      background: rgba(255, 255, 255, 0.92);
-      color: var(--text);
-      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.82);
     }
 
     .chip.active {
       background: rgba(44, 95, 95, 0.12);
       color: var(--player);
-      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.15);
+    }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .toggle {
-      flex: 1 1 140px;
-      min-height: 52px;
       border-radius: 18px;
       padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.82);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
+      text-align: left;
     }
 
     .toggle strong {
+      display: block;
       font-size: 0.92rem;
       font-weight: 600;
     }
@@ -482,17 +496,17 @@
 
     .toggle.active {
       background: rgba(44, 95, 95, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.15);
     }
 
     .toggle-indicator {
       width: 34px;
       height: 20px;
-      background: rgba(0, 0, 0, 0.12);
       border-radius: 999px;
+      background: rgba(0, 0, 0, 0.12);
       position: relative;
       flex-shrink: 0;
-      transition: background-color 180ms ease;
+      transition: background-color 160ms ease;
     }
 
     .toggle-indicator::after {
@@ -505,11 +519,11 @@
       border-radius: 50%;
       background: #fff;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-      transition: transform 180ms ease;
+      transition: transform 160ms ease;
     }
 
     .toggle.active .toggle-indicator {
-      background: rgba(44, 95, 95, 0.44);
+      background: rgba(44, 95, 95, 0.42);
     }
 
     .toggle.active .toggle-indicator::after {
@@ -521,20 +535,18 @@
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
-      padding: 14px 18px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.72);
-      box-shadow: 0 20px 42px rgba(55, 66, 72, 0.16);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 220ms ease, transform 220ms ease;
+      transition: opacity 200ms ease, transform 200ms ease;
       text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.8);
     }
 
     .toast {
-      bottom: calc(118px + var(--safe-bottom));
-      font-size: 0.9rem;
+      bottom: calc(104px + var(--safe-bottom));
+      border-radius: 18px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
     }
 
     .toast.show {
@@ -544,10 +556,10 @@
 
     .victory-card {
       top: 50%;
-      width: min(calc(100% - 48px), 320px);
-      padding: 22px 18px;
-      transform: translate(-50%, -44%);
-      background: rgba(255, 255, 255, 0.94);
+      width: min(calc(100% - 48px), 308px);
+      border-radius: 24px;
+      padding: 20px 18px;
+      transform: translate(-50%, -46%);
     }
 
     .victory-card.show {
@@ -557,13 +569,13 @@
 
     .victory-card h2 {
       margin: 0 0 6px;
-      font-size: 1.45rem;
+      font-size: 1.36rem;
     }
 
     .victory-card p {
       margin: 0;
+      font-size: 0.9rem;
       color: var(--muted);
-      font-size: 0.92rem;
     }
 
     .petals {
@@ -575,9 +587,10 @@
 
     .petal {
       position: absolute;
-      width: 12px;
-      height: 12px;
-      border-radius: 999px 999px 999px 2px;
+      font-size: 18px;
+      line-height: 1;
+      color: rgba(227, 218, 201, 0.95);
+      text-shadow: 0 4px 10px rgba(160, 150, 140, 0.15);
       opacity: 0;
       animation: fall linear forwards;
     }
@@ -594,56 +607,47 @@
     }
 
     @keyframes fillPop {
-      0% { transform: scale(0.78); }
-      70% { transform: scale(1.12); }
+      0% { transform: scale(0.93); }
+      72% { transform: scale(1.04); }
       100% { transform: scale(1); }
     }
 
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-4px); }
-      40% { transform: translateX(4px); }
-      60% { transform: translateX(-3px); }
-      80% { transform: translateX(3px); }
-    }
-
     @keyframes conflictFlash {
-      0% { box-shadow: inset 0 0 0 0 rgba(229, 115, 115, 0); }
-      50% { box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0.28); }
-      100% { box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0); }
+      0% { box-shadow: inset 0 0 0 0 rgba(217, 181, 181, 0); }
+      50% { box-shadow: inset 0 0 0 2px rgba(217, 181, 181, 0.55); }
+      100% { box-shadow: inset 0 0 0 0 rgba(217, 181, 181, 0); }
     }
 
     @keyframes winGlow {
-      0% { box-shadow: inset 0 0 0 0 rgba(212, 175, 55, 0); }
-      50% { box-shadow: inset 0 0 0 2px rgba(212, 175, 55, 0.45); }
-      100% { box-shadow: inset 0 0 0 0 rgba(212, 175, 55, 0); }
+      0% { box-shadow: inset 0 0 0 0 rgba(204, 183, 127, 0); }
+      50% { box-shadow: inset 0 0 0 2px rgba(204, 183, 127, 0.4); }
+      100% { box-shadow: inset 0 0 0 0 rgba(204, 183, 127, 0); }
     }
 
     @keyframes fall {
       0% {
-        transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.9);
+        transform: translate3d(0, -10vh, 0) rotate(0deg);
         opacity: 0;
       }
-      10% {
-        opacity: 0.95;
+      8% {
+        opacity: 0.88;
       }
       100% {
-        transform: translate3d(var(--drift), 112vh, 0) rotate(360deg) scale(1.08);
+        transform: translate3d(var(--drift), 110vh, 0) rotate(300deg);
         opacity: 0;
       }
     }
 
-    @media (min-width: 700px) and (orientation: landscape) {
+    @media (min-width: 760px) and (orientation: landscape) {
       body {
         padding-top: 24px;
       }
 
       .app {
-        width: min(100%, 960px);
-        grid-template-columns: minmax(320px, 1fr) minmax(260px, 320px);
+        width: min(100%, 940px);
+        grid-template-columns: minmax(320px, 1fr) minmax(270px, 320px);
         grid-template-areas:
           "top top"
-          "status status"
           "board side"
           "panel side";
         align-items: start;
@@ -653,17 +657,12 @@
         grid-area: top;
       }
 
-      .status-card {
-        grid-area: status;
-      }
-
       .board-card {
         grid-area: board;
       }
 
       .toolbar {
         grid-area: side;
-        align-self: start;
       }
 
       .number-panel {
@@ -672,7 +671,7 @@
       }
 
       .toast {
-        bottom: 36px;
+        bottom: 34px;
       }
     }
   </style>
@@ -682,61 +681,61 @@
     <header class="topbar">
       <div class="brand">
         <h1 class="title">清风数独</h1>
-        <p class="subtitle">静下来，一格一格地把答案拼出来</p>
+        <div class="meta" aria-label="当前游戏状态">
+          <span id="difficultyLabel">简单</span>
+          <span class="meta-dot" aria-hidden="true"></span>
+          <span id="remainingLabel">剩余 0 格</span>
+        </div>
       </div>
       <button class="icon-button" id="settingsButton" type="button" aria-label="打开设置">
         <span aria-hidden="true">⚙️</span>
-        <span>设置</span>
       </button>
     </header>
 
-    <section class="card status-card" aria-label="游戏状态">
-      <div class="status-group">
-        <span class="status-label">当前难度</span>
-        <span class="status-value" id="difficultyLabel">简单</span>
-      </div>
-      <div class="status-group">
-        <span class="status-label">剩余空格</span>
-        <span class="status-value" id="remainingLabel">0</span>
-      </div>
-      <div class="status-group">
-        <span class="status-label">当前模式</span>
-        <span class="status-value" id="modeLabel">填数字</span>
-      </div>
-    </section>
-
     <section class="card board-card">
-      <div class="board" id="board" role="grid" aria-label="9乘9数独盘面"></div>
+      <div class="board-shell">
+        <div class="board-status">
+          <span id="modeLabel">填数字</span>
+          <strong id="selectionLabel">请选择空格</strong>
+        </div>
+        <div class="board" id="board" role="grid" aria-label="9乘9数独盘面"></div>
+      </div>
     </section>
 
     <section class="toolbar" aria-label="功能操作">
-      <button class="action-button" id="noteButton" type="button" aria-label="切换笔记模式">
-        <strong>✏️ 笔记</strong>
-        <span>候选数字</span>
-      </button>
-      <button class="action-button" id="undoButton" type="button" aria-label="撤销">
-        <strong>↶ 撤销</strong>
-        <span>回到上一步</span>
-      </button>
-      <button class="action-button" id="redoButton" type="button" aria-label="重做">
-        <strong>↷ 重做</strong>
-        <span>恢复操作</span>
-      </button>
-      <button class="action-button" id="resetButton" type="button" aria-label="重置当前游戏">
-        <strong>⟲ 重置</strong>
-        <span>清空填写</span>
-      </button>
-      <button class="action-button" id="newGameButton" type="button" aria-label="开始新游戏">
-        <strong>🎲 新游戏</strong>
-        <span>随机题目</span>
-      </button>
+      <div class="tool-row primary">
+        <button class="action-button" id="resetButton" type="button" aria-label="重置当前游戏">
+          <span aria-hidden="true">⟲</span>
+          <span>重置</span>
+        </button>
+        <button class="action-button" id="newGameButton" type="button" aria-label="开始新游戏">
+          <span aria-hidden="true">🎲</span>
+          <span>新游戏</span>
+        </button>
+      </div>
+      <div class="tool-row secondary">
+        <button class="action-button" id="noteButton" type="button" aria-label="切换笔记模式" aria-pressed="false">
+          <span aria-hidden="true">✏️</span>
+          <span>笔记</span>
+        </button>
+        <button class="action-button" id="undoButton" type="button" aria-label="撤销">
+          <span aria-hidden="true">↶</span>
+          <span>撤销</span>
+        </button>
+        <button class="action-button" id="redoButton" type="button" aria-label="重做">
+          <span aria-hidden="true">↷</span>
+          <span>重做</span>
+        </button>
+      </div>
     </section>
 
-    <section class="number-panel" aria-label="数字输入面板">
+    <section class="number-panel" id="numberPanel" aria-label="数字输入面板">
       <div class="number-grid" id="numberGrid"></div>
-      <div class="panel-hint">
-        <span id="selectionHint">请先选择一个空格</span>
-        <span id="panelModeHint">当前为填数字模式</span>
+      <div class="number-footer">
+        <button class="number-button clear-button" id="clearButton" type="button" data-value="0" aria-label="清除当前格子">
+          <span aria-hidden="true">⌫</span>
+          <span>清除</span>
+        </button>
       </div>
     </section>
   </main>
@@ -774,15 +773,15 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <section class="victory-card" id="victoryCard" aria-live="polite" aria-hidden="true">
-    <h2>🎉 胜利！🎉</h2>
-    <p>所有格子都安静地归位了，继续来一局吗？</p>
+    <h2>🎉 胜利</h2>
+    <p>这一局已经完成了，继续开一盘新的吧。</p>
   </section>
   <div class="petals" id="petals" aria-hidden="true"></div>
   <div class="sr-only" id="liveRegion" aria-live="polite"></div>
 
   <script>
     (() => {
-      const STORAGE_KEY = "qingfeng-sudoku-state-v1";
+      const STORAGE_KEY = "qingfeng-sudoku-state-v2";
       const HISTORY_LIMIT = 200;
       const DIFFICULTY_LABELS = {
         easy: "简单",
@@ -795,6 +794,8 @@
       const elements = {
         board: document.getElementById("board"),
         numberGrid: document.getElementById("numberGrid"),
+        numberPanel: document.getElementById("numberPanel"),
+        clearButton: document.getElementById("clearButton"),
         noteButton: document.getElementById("noteButton"),
         undoButton: document.getElementById("undoButton"),
         redoButton: document.getElementById("redoButton"),
@@ -807,8 +808,7 @@
         difficultyLabel: document.getElementById("difficultyLabel"),
         remainingLabel: document.getElementById("remainingLabel"),
         modeLabel: document.getElementById("modeLabel"),
-        selectionHint: document.getElementById("selectionHint"),
-        panelModeHint: document.getElementById("panelModeHint"),
+        selectionLabel: document.getElementById("selectionLabel"),
         difficultyChips: document.getElementById("difficultyChips"),
         conflictToggle: document.getElementById("conflictToggle"),
         vibrateToggle: document.getElementById("vibrateToggle"),
@@ -834,7 +834,8 @@
         future: [],
         completed: false,
         lastToastTimer: 0,
-        victoryTimer: 0
+        victoryTimer: 0,
+        pendingSaveFrame: 0
       };
 
       function buildPuzzleBank() {
@@ -852,11 +853,7 @@
           hard: [54, 55, 56, 57, 58]
         };
 
-        const bank = {
-          easy: [],
-          medium: [],
-          hard: []
-        };
+        const bank = { easy: [], medium: [], hard: [] };
 
         Object.entries(specs).forEach(([difficulty, blanks]) => {
           blanks.forEach((blankCount, index) => {
@@ -912,7 +909,7 @@
       }
 
       function deepCopyNotes(notes) {
-        return notes.map((cellNotes) => cellNotes.slice().sort((a, b) => a - b));
+        return notes.map((entry) => entry.slice().sort((a, b) => a - b));
       }
 
       function snapshotState() {
@@ -946,83 +943,17 @@
         }
       }
 
-      function defaultGameState(difficulty = "easy") {
-        const puzzle = pickPuzzle(difficulty);
-        const board = parseBoardString(puzzle.puzzle);
-        return {
-          difficulty,
-          currentPuzzleId: puzzle.id,
-          puzzle,
-          board,
-          notes: emptyNotes(),
-          selected: null,
-          noteMode: false,
-          history: [],
-          future: [],
-          completed: false
-        };
-      }
-
-      function pickPuzzle(difficulty, excludeId) {
-        const list = PUZZLE_BANK[difficulty];
-        const filtered = excludeId ? list.filter((item) => item.id !== excludeId) : list.slice();
-        const pool = filtered.length ? filtered : list;
-        const randomIndex = Math.floor(Math.random() * pool.length);
-        return pool[randomIndex];
-      }
-
-      function loadState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) {
-            Object.assign(state, defaultGameState("easy"));
-            return;
-          }
-
-          const saved = JSON.parse(raw);
-          state.settings.autoCheck = saved.settings?.autoCheck !== false;
-          state.settings.vibration = saved.settings?.vibration !== false;
-          const difficulty = saved.difficulty in DIFFICULTY_LABELS ? saved.difficulty : "easy";
-          const puzzle = findPuzzle(saved.currentPuzzleId, difficulty) || pickPuzzle(difficulty);
-          const board = Array.isArray(saved.board) && saved.board.length === 81 ? saved.board.map(Number) : parseBoardString(puzzle.puzzle);
-          const notes = Array.isArray(saved.notes) && saved.notes.length === 81
-            ? saved.notes.map((entry) => Array.isArray(entry) ? entry.filter((n) => n >= 1 && n <= 9).map(Number) : [])
-            : emptyNotes();
-          const history = Array.isArray(saved.history)
-            ? saved.history.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry)
-            : [];
-          const future = Array.isArray(saved.future)
-            ? saved.future.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry)
-            : [];
-
-          state.difficulty = difficulty;
-          state.currentPuzzleId = puzzle.id;
-          state.puzzle = puzzle;
-          state.board = board;
-          state.notes = notes;
-          state.selected = Number.isInteger(saved.selected) && saved.selected >= 0 && saved.selected < 81 ? saved.selected : null;
-          state.noteMode = Boolean(saved.noteMode);
-          state.history = history;
-          state.future = future;
-          state.completed = Boolean(saved.completed);
-        } catch (error) {
-          Object.assign(state, defaultGameState("easy"));
+      function scheduleSave() {
+        if (state.pendingSaveFrame) {
+          cancelAnimationFrame(state.pendingSaveFrame);
         }
+        state.pendingSaveFrame = requestAnimationFrame(() => {
+          state.pendingSaveFrame = 0;
+          saveStateNow();
+        });
       }
 
-      function isValidHistoryEntry(entry) {
-        return entry && entry.before && entry.after &&
-          Array.isArray(entry.before.board) && entry.before.board.length === 81 &&
-          Array.isArray(entry.after.board) && entry.after.board.length === 81 &&
-          Array.isArray(entry.before.notes) && entry.before.notes.length === 81 &&
-          Array.isArray(entry.after.notes) && entry.after.notes.length === 81;
-      }
-
-      function findPuzzle(id, difficulty) {
-        return PUZZLE_BANK[difficulty].find((item) => item.id === id) || null;
-      }
-
-      function saveState() {
+      function saveStateNow() {
         const payload = {
           settings: state.settings,
           difficulty: state.difficulty,
@@ -1038,6 +969,74 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
       }
 
+      function defaultGameState(difficulty = "easy") {
+        const puzzle = pickPuzzle(difficulty);
+        return {
+          difficulty,
+          currentPuzzleId: puzzle.id,
+          puzzle,
+          board: parseBoardString(puzzle.puzzle),
+          notes: emptyNotes(),
+          selected: null,
+          noteMode: false,
+          history: [],
+          future: [],
+          completed: false
+        };
+      }
+
+      function pickPuzzle(difficulty, excludeId) {
+        const list = PUZZLE_BANK[difficulty];
+        const filtered = excludeId ? list.filter((item) => item.id !== excludeId) : list.slice();
+        const pool = filtered.length ? filtered : list;
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      function findPuzzle(id, difficulty) {
+        return PUZZLE_BANK[difficulty].find((item) => item.id === id) || null;
+      }
+
+      function isValidHistoryEntry(entry) {
+        return entry && entry.before && entry.after &&
+          Array.isArray(entry.before.board) && entry.before.board.length === 81 &&
+          Array.isArray(entry.after.board) && entry.after.board.length === 81 &&
+          Array.isArray(entry.before.notes) && entry.before.notes.length === 81 &&
+          Array.isArray(entry.after.notes) && entry.after.notes.length === 81;
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            Object.assign(state, defaultGameState("easy"));
+            return;
+          }
+
+          const saved = JSON.parse(raw);
+          state.settings.autoCheck = saved.settings?.autoCheck !== false;
+          state.settings.vibration = saved.settings?.vibration !== false;
+          const difficulty = saved.difficulty in DIFFICULTY_LABELS ? saved.difficulty : "easy";
+          const puzzle = findPuzzle(saved.currentPuzzleId, difficulty) || pickPuzzle(difficulty);
+
+          state.difficulty = difficulty;
+          state.currentPuzzleId = puzzle.id;
+          state.puzzle = puzzle;
+          state.board = Array.isArray(saved.board) && saved.board.length === 81
+            ? saved.board.map(Number)
+            : parseBoardString(puzzle.puzzle);
+          state.notes = Array.isArray(saved.notes) && saved.notes.length === 81
+            ? saved.notes.map((entry) => Array.isArray(entry) ? entry.filter((n) => n >= 1 && n <= 9).map(Number) : [])
+            : emptyNotes();
+          state.selected = Number.isInteger(saved.selected) && saved.selected >= 0 && saved.selected < 81 ? saved.selected : null;
+          state.noteMode = Boolean(saved.noteMode);
+          state.history = Array.isArray(saved.history) ? saved.history.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry) : [];
+          state.future = Array.isArray(saved.future) ? saved.future.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry) : [];
+          state.completed = Boolean(saved.completed);
+        } catch (error) {
+          Object.assign(state, defaultGameState("easy"));
+        }
+      }
+
       function createBoard() {
         const fragment = document.createDocumentFragment();
         for (let index = 0; index < 81; index += 1) {
@@ -1048,7 +1047,6 @@
           cell.dataset.boxRight = String(index % 9 === 2 || index % 9 === 5);
           cell.dataset.boxBottom = String(Math.floor(index / 9) === 2 || Math.floor(index / 9) === 5);
           cell.setAttribute("role", "gridcell");
-          cell.setAttribute("aria-label", `第 ${Math.floor(index / 9) + 1} 行第 ${index % 9 + 1} 列`);
 
           const value = document.createElement("span");
           value.className = "value";
@@ -1056,11 +1054,9 @@
 
           const notes = document.createElement("div");
           notes.className = "notes";
-          for (let n = 1; n <= 9; n += 1) {
+          for (let n = 0; n < 4; n += 1) {
             const note = document.createElement("span");
             note.className = "note";
-            note.textContent = String(n);
-            note.dataset.note = String(n);
             notes.appendChild(note);
           }
           cell.appendChild(notes);
@@ -1080,15 +1076,6 @@
           button.textContent = String(n);
           fragment.appendChild(button);
         }
-
-        const clearButton = document.createElement("button");
-        clearButton.type = "button";
-        clearButton.className = "number-button";
-        clearButton.dataset.value = "0";
-        clearButton.setAttribute("aria-label", "清除当前格子");
-        clearButton.textContent = "⌫";
-        fragment.appendChild(clearButton);
-
         elements.numberGrid.appendChild(fragment);
       }
 
@@ -1165,26 +1152,23 @@
         return conflictSet;
       }
 
+      function canEdit(index) {
+        return index !== null && !puzzleGivenAt(index);
+      }
+
       function selectCell(index, { silent = false } = {}) {
         state.selected = index;
         if (!silent) {
-          pulseVibration(50);
+          pulseVibration(40);
         }
         render();
-        saveState();
-      }
-
-      function clearSelection() {
-        state.selected = null;
-        render();
-        saveState();
       }
 
       function toggleNoteMode() {
         state.noteMode = !state.noteMode;
-        pulseVibration(50);
+        pulseVibration(40);
         render();
-        saveState();
+        scheduleSave();
       }
 
       function handleCellPress(index) {
@@ -1194,10 +1178,6 @@
         selectCell(index);
       }
 
-      function canEdit(index) {
-        return index !== null && !puzzleGivenAt(index);
-      }
-
       function applyInput(rawValue) {
         if (state.selected === null || !canEdit(state.selected) || state.completed) {
           showToast("请先选择一个可填写的空格");
@@ -1205,10 +1185,7 @@
         }
 
         const value = Number(rawValue);
-        pushHistory(state.noteMode ? "note" : "fill", {
-          index: state.selected,
-          value
-        });
+        pushHistory(state.noteMode ? "note" : "fill", { index: state.selected, value });
 
         if (state.noteMode) {
           toggleNoteAt(state.selected, value);
@@ -1219,7 +1196,7 @@
         finalizeHistoryEntry();
         state.completed = false;
         render({ animatedIndex: state.selected, recentConflictCheck: true });
-        saveState();
+        scheduleSave();
         maybeCelebrate();
       }
 
@@ -1244,11 +1221,7 @@
 
       function setCellValue(index, value) {
         const previous = state.board[index];
-        if (previous === value) {
-          state.board[index] = 0;
-        } else {
-          state.board[index] = value;
-        }
+        state.board[index] = previous === value ? 0 : value;
         if (value !== 0) {
           state.notes[index] = [];
         }
@@ -1262,9 +1235,9 @@
         state.future.push(entry);
         restoreSnapshot(entry.before);
         state.completed = false;
-        pulseVibration(50);
+        pulseVibration(40);
         render();
-        saveState();
+        scheduleSave();
       }
 
       function redo() {
@@ -1275,9 +1248,9 @@
         state.history.push(entry);
         restoreSnapshot(entry.after);
         state.completed = false;
-        pulseVibration(50);
+        pulseVibration(40);
         render();
-        saveState();
+        scheduleSave();
         maybeCelebrate();
       }
 
@@ -1288,9 +1261,9 @@
         state.selected = null;
         state.completed = false;
         finalizeHistoryEntry();
-        pulseVibration(50);
+        pulseVibration(40);
         render();
-        saveState();
+        scheduleSave();
         showToast("当前题目已重置");
       }
 
@@ -1307,7 +1280,7 @@
         state.future = [];
         state.completed = false;
         render();
-        saveState();
+        scheduleSave();
         showToast(`${DIFFICULTY_LABELS[nextDifficulty]}难度，新的题目已准备好`);
       }
 
@@ -1315,52 +1288,53 @@
         if (nextDifficulty === state.difficulty) {
           return;
         }
-        pulseVibration(50);
+        pulseVibration(40);
+        closeSettings();
         startNewGame(nextDifficulty, { keepDifferent: false });
       }
 
       function toggleSetting(key) {
         state.settings[key] = !state.settings[key];
         if (key === "vibration" && state.settings[key]) {
-          navigator.vibrate?.(30);
+          navigator.vibrate?.(24);
         }
         render();
-        saveState();
+        scheduleSave();
       }
 
       function openSettings() {
         elements.overlay.hidden = false;
-        elements.settingsSheet.classList.add("open");
         elements.overlay.classList.add("open");
+        elements.settingsSheet.classList.add("open");
         elements.settingsSheet.setAttribute("aria-hidden", "false");
       }
 
       function closeSettings() {
-        elements.settingsSheet.classList.remove("open");
         elements.overlay.classList.remove("open");
+        elements.settingsSheet.classList.remove("open");
         elements.settingsSheet.setAttribute("aria-hidden", "true");
-        window.setTimeout(() => {
+        setTimeout(() => {
           if (!elements.overlay.classList.contains("open")) {
             elements.overlay.hidden = true;
           }
-        }, 220);
+        }, 180);
       }
 
       function showToast(message) {
         elements.toast.textContent = message;
         elements.toast.classList.add("show");
-        window.clearTimeout(state.lastToastTimer);
-        state.lastToastTimer = window.setTimeout(() => {
+        clearTimeout(state.lastToastTimer);
+        state.lastToastTimer = setTimeout(() => {
           elements.toast.classList.remove("show");
-        }, 1600);
+        }, 1500);
         announce(message);
       }
 
       function announce(message) {
         elements.liveRegion.textContent = "";
-        window.setTimeout(() => {
+        setTimeout(() => {
           elements.liveRegion.textContent = message;
-        }, 20);
+        }, 16);
       }
 
       function pulseVibration(duration) {
@@ -1378,50 +1352,58 @@
         }
         state.completed = true;
         render();
-        saveState();
+        scheduleSave();
         showVictory();
       }
 
       function showVictory() {
         elements.victoryCard.classList.add("show");
         elements.victoryCard.setAttribute("aria-hidden", "false");
-        pulseVibration(200);
+        pulseVibration(80);
         sprinklePetals();
         flashBoard();
         announce("胜利，当前数独已完成");
-        window.clearTimeout(state.victoryTimer);
-        state.victoryTimer = window.setTimeout(() => {
+        clearTimeout(state.victoryTimer);
+        state.victoryTimer = setTimeout(() => {
           elements.victoryCard.classList.remove("show");
           elements.victoryCard.setAttribute("aria-hidden", "true");
-        }, 2200);
+        }, 2100);
       }
 
       function flashBoard() {
         elements.board.querySelectorAll(".cell").forEach((cell, index) => {
-          window.setTimeout(() => {
+          setTimeout(() => {
             cell.classList.add("win-glow");
-            window.setTimeout(() => cell.classList.remove("win-glow"), 220);
-          }, (index % 9) * 12);
+            setTimeout(() => cell.classList.remove("win-glow"), 220);
+          }, (index % 9) * 10);
         });
       }
 
       function sprinklePetals() {
         elements.petals.innerHTML = "";
-        const colors = ["#f6c8cf", "#f2d8b8", "#d9eadf", "#f7dfea", "#efe2a6"];
-        for (let i = 0; i < 26; i += 1) {
+        const origins = [
+          { left: 4, top: -8, driftBase: 140 },
+          { left: 88, top: -8, driftBase: -140 },
+          { left: 10, top: 12, driftBase: 110 },
+          { left: 84, top: 12, driftBase: -110 }
+        ];
+
+        for (let i = 0; i < 24; i += 1) {
+          const origin = origins[i % origins.length];
           const petal = document.createElement("span");
           petal.className = "petal";
-          petal.style.left = `${Math.random() * 100}%`;
-          petal.style.top = `${-8 - Math.random() * 14}%`;
-          petal.style.background = colors[i % colors.length];
-          petal.style.setProperty("--drift", `${(Math.random() - 0.5) * 180}px`);
-          petal.style.animationDuration = `${2400 + Math.random() * 1100}ms`;
-          petal.style.animationDelay = `${Math.random() * 160}ms`;
+          petal.textContent = "❀";
+          petal.style.left = `${origin.left + Math.random() * 8}%`;
+          petal.style.top = `${origin.top + Math.random() * 6}%`;
+          petal.style.setProperty("--drift", `${origin.driftBase + (Math.random() - 0.5) * 80}px`);
+          petal.style.animationDuration = `${2200 + Math.random() * 900}ms`;
+          petal.style.animationDelay = `${Math.random() * 180}ms`;
           elements.petals.appendChild(petal);
         }
-        window.setTimeout(() => {
+
+        setTimeout(() => {
           elements.petals.innerHTML = "";
-        }, 3400);
+        }, 3300);
       }
 
       function attachEvents() {
@@ -1438,8 +1420,13 @@
           if (!button) {
             return;
           }
-          pulseVibration(50);
+          pulseVibration(40);
           applyInput(button.dataset.value);
+        });
+
+        elements.clearButton.addEventListener("click", () => {
+          pulseVibration(40);
+          applyInput("0");
         });
 
         elements.noteButton.addEventListener("click", toggleNoteMode);
@@ -1447,11 +1434,11 @@
         elements.redoButton.addEventListener("click", redo);
         elements.resetButton.addEventListener("click", resetGame);
         elements.newGameButton.addEventListener("click", () => {
-          pulseVibration(50);
+          pulseVibration(40);
           startNewGame(state.difficulty);
         });
         elements.settingsButton.addEventListener("click", () => {
-          pulseVibration(50);
+          pulseVibration(40);
           openSettings();
         });
         elements.closeSettingsButton.addEventListener("click", closeSettings);
@@ -1463,7 +1450,6 @@
           if (!chip) {
             return;
           }
-          closeSettings();
           setDifficulty(chip.dataset.difficulty);
         });
 
@@ -1479,8 +1465,10 @@
             return;
           }
 
-          if ((event.key.toLowerCase() === "z" && (event.ctrlKey || event.metaKey) && event.shiftKey) ||
-              (event.key.toLowerCase() === "y" && (event.ctrlKey || event.metaKey))) {
+          if (
+            (event.key.toLowerCase() === "z" && (event.ctrlKey || event.metaKey) && event.shiftKey) ||
+            (event.key.toLowerCase() === "y" && (event.ctrlKey || event.metaKey))
+          ) {
             event.preventDefault();
             redo();
             return;
@@ -1508,14 +1496,7 @@
             return;
           }
 
-          const movement = {
-            ArrowUp: -9,
-            ArrowDown: 9,
-            ArrowLeft: -1,
-            ArrowRight: 1
-          };
-
-          if (event.key in movement) {
+          if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
             event.preventDefault();
             const next = moveSelection(state.selected, event.key);
             if (next !== null) {
@@ -1533,6 +1514,26 @@
         if (key === "ArrowLeft" && col > 0) return index - 1;
         if (key === "ArrowRight" && col < 8) return index + 1;
         return null;
+      }
+
+      function formatSelectionLabel() {
+        if (state.selected === null) {
+          return "请选择空格";
+        }
+        if (!canEdit(state.selected)) {
+          return "该格为预置数字";
+        }
+        return `第 ${rowOf(state.selected) + 1} 行，第 ${colOf(state.selected) + 1} 列`;
+      }
+
+      function summarizeNotes(notes) {
+        if (!notes.length) {
+          return "";
+        }
+        if (notes.length <= 4) {
+          return notes.join(" ");
+        }
+        return `${notes.slice(0, 3).join(" ")} …`;
       }
 
       function render(options = {}) {
@@ -1564,9 +1565,12 @@
 
           const notesNode = cell.querySelector(".notes");
           notesNode.hidden = value !== 0;
-          notesNode.querySelectorAll(".note").forEach((note) => {
-            const noteValue = Number(note.dataset.note);
-            note.classList.toggle("visible", state.notes[index].includes(noteValue) && value === 0);
+          const compactNotes = state.notes[index].length <= 4 ? state.notes[index] : [...state.notes[index].slice(0, 3), "…"];
+          notesNode.querySelectorAll(".note").forEach((noteNode, noteIndex) => {
+            const noteValue = compactNotes[noteIndex];
+            const visible = noteValue !== undefined && value === 0;
+            noteNode.textContent = visible ? String(noteValue) : "";
+            noteNode.classList.toggle("visible", visible);
           });
 
           const positionLabel = `第 ${rowOf(index) + 1} 行第 ${colOf(index) + 1} 列`;
@@ -1575,7 +1579,7 @@
             : value
               ? `已填数字 ${value}`
               : state.notes[index].length
-                ? `笔记 ${state.notes[index].join("、")}`
+                ? `笔记 ${summarizeNotes(state.notes[index])}`
                 : "空格";
           cell.setAttribute("aria-label", `${positionLabel}，${stateLabel}`);
 
@@ -1583,7 +1587,7 @@
             cell.classList.remove("fill-pop");
             void cell.offsetWidth;
             cell.classList.add("fill-pop");
-            window.setTimeout(() => cell.classList.remove("fill-pop"), 260);
+            setTimeout(() => cell.classList.remove("fill-pop"), 190);
           }
         });
 
@@ -1593,42 +1597,37 @@
             if (!cell) {
               return;
             }
-            cell.classList.remove("shake", "conflict-flash");
+            cell.classList.remove("conflict-flash");
             void cell.offsetWidth;
-            cell.classList.add("shake", "conflict-flash");
-            window.setTimeout(() => {
-              cell.classList.remove("shake", "conflict-flash");
-            }, 420);
+            cell.classList.add("conflict-flash");
+            setTimeout(() => cell.classList.remove("conflict-flash"), 280);
           });
-          pulseVibration(30);
+          pulseVibration(24);
         }
+
+        const panelDisabled = state.selected === null || !canEdit(state.selected) || state.completed;
+        elements.numberPanel.classList.toggle("disabled", panelDisabled);
 
         elements.numberGrid.querySelectorAll(".number-button").forEach((button) => {
           const buttonValue = Number(button.dataset.value);
-          const disabled = state.selected === null || !canEdit(state.selected) || state.completed;
-          button.disabled = disabled;
+          button.disabled = panelDisabled;
           button.classList.toggle("selected-value", state.selected !== null && state.board[state.selected] === buttonValue && buttonValue !== 0);
           button.classList.toggle("note-target", state.noteMode && buttonValue !== 0);
-          button.classList.toggle("disabled-value", disabled);
         });
 
+        elements.clearButton.disabled = panelDisabled;
         elements.noteButton.classList.toggle("active", state.noteMode);
+        elements.noteButton.setAttribute("aria-pressed", String(state.noteMode));
         elements.undoButton.disabled = state.history.length === 0;
         elements.redoButton.disabled = state.future.length === 0;
 
         elements.difficultyLabel.textContent = DIFFICULTY_LABELS[state.difficulty];
-        elements.remainingLabel.textContent = String(state.board.filter((value) => value === 0).length);
+        elements.remainingLabel.textContent = `剩余 ${state.board.filter((value) => value === 0).length} 格`;
         elements.modeLabel.textContent = state.noteMode ? "笔记模式" : "填数字";
-        elements.selectionHint.textContent = state.selected === null
-          ? "请先选择一个空格"
-          : canEdit(state.selected)
-            ? `已选中 第 ${rowOf(state.selected) + 1} 行第 ${colOf(state.selected) + 1} 列`
-            : "当前格子是预置数字，不可编辑";
-        elements.panelModeHint.textContent = state.noteMode ? "当前为笔记模式" : "当前为填数字模式";
+        elements.selectionLabel.textContent = formatSelectionLabel();
 
         elements.conflictToggle.classList.toggle("active", state.settings.autoCheck);
         elements.vibrateToggle.classList.toggle("active", state.settings.vibration);
-
         elements.difficultyChips.querySelectorAll(".chip").forEach((chip) => {
           chip.classList.toggle("active", chip.dataset.difficulty === state.difficulty);
         });
