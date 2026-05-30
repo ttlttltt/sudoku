@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>清风数独</title>
+  <style>
+    :root {
+      --bg: #f9f7f4;
+      --bg-accent: #eef3f1;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --line: #e2e4e6;
+      --line-strong: #bfc6ca;
+      --text: #4a4a4a;
+      --player: #2c5f5f;
+      --muted: #7e8388;
+      --selected: #e6f0ef;
+      --peer: #f1f6f6;
+      --same: #edf5ee;
+      --conflict: #fef0f0;
+      --conflict-line: #e57373;
+      --button: rgba(0, 0, 0, 0.05);
+      --button-active: rgba(44, 95, 95, 0.12);
+      --shadow: 0 18px 40px rgba(70, 88, 87, 0.09);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top left, rgba(230, 240, 239, 0.85), transparent 34%),
+        radial-gradient(circle at top right, rgba(255, 248, 240, 0.9), transparent 28%),
+        linear-gradient(180deg, #f9f7f4 0%, #f1f4f4 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px 14px calc(28px + var(--safe-bottom));
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      display: grid;
+      gap: 14px;
+    }
+
+    .topbar,
+    .card,
+    .toolbar,
+    .number-panel,
+    .settings-sheet,
+    .toast,
+    .victory-card {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 6px 4px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 2px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .icon-button,
+    .action-button,
+    .number-button,
+    .sheet-close,
+    .chip {
+      min-width: 44px;
+      min-height: 44px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--button);
+      color: var(--text);
+      transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+      box-shadow: none;
+    }
+
+    .icon-button:active,
+    .action-button:active,
+    .number-button:active,
+    .sheet-close:active,
+    .chip:active {
+      transform: scale(0.96);
+    }
+
+    .icon-button {
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .status-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+    }
+
+    .status-group {
+      display: grid;
+      gap: 4px;
+    }
+
+    .status-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .status-value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .board-card {
+      padding: 16px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.9);
+      position: relative;
+      isolation: isolate;
+    }
+
+    .cell {
+      position: relative;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .cell[data-box-right="true"] {
+      border-right-color: var(--line-strong);
+      border-right-width: 1.5px;
+    }
+
+    .cell[data-box-bottom="true"] {
+      border-bottom-color: var(--line-strong);
+      border-bottom-width: 1.5px;
+    }
+
+    .cell.selected {
+      background: var(--selected);
+      box-shadow: inset 0 0 0 2px rgba(44, 95, 95, 0.13);
+      z-index: 2;
+    }
+
+    .cell.peer {
+      background: var(--peer);
+    }
+
+    .cell.same-value {
+      background: var(--same);
+    }
+
+    .cell.given .value {
+      color: var(--text);
+      font-weight: 400;
+    }
+
+    .cell.player .value {
+      color: var(--player);
+      font-weight: 550;
+    }
+
+    .cell.conflict {
+      background: var(--conflict);
+      box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0.2);
+    }
+
+    .cell.conflict-flash {
+      animation: conflictFlash 420ms ease;
+    }
+
+    .cell.shake {
+      animation: shake 340ms ease;
+    }
+
+    .cell.fill-pop .value {
+      animation: fillPop 240ms ease;
+    }
+
+    .cell.win-glow {
+      animation: winGlow 220ms ease;
+    }
+
+    .value {
+      font-size: clamp(1.1rem, 4vw, 1.65rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      transform-origin: center;
+    }
+
+    .notes {
+      position: absolute;
+      inset: 5px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 1px;
+      align-items: center;
+      justify-items: center;
+      color: #888;
+      font-size: clamp(0.48rem, 1.95vw, 0.65rem);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .note {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .note.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      padding: 10px;
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .action-button {
+      padding: 10px 8px;
+      border-radius: 18px;
+      display: grid;
+      gap: 2px;
+      justify-items: center;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .action-button strong {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .action-button span {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .action-button.active {
+      background: var(--button-active);
+      color: var(--player);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.14);
+    }
+
+    .action-button:disabled,
+    .number-button:disabled {
+      opacity: 0.4;
+    }
+
+    .number-panel {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      background: var(--panel-strong);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 18px 46px rgba(76, 89, 93, 0.12);
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .number-button {
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 1.05rem;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      color: var(--player);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
+    }
+
+    .number-button.selected-value {
+      background: rgba(44, 95, 95, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
+    }
+
+    .number-button.note-target {
+      color: var(--text);
+    }
+
+    .number-button.note-target::after {
+      content: "·";
+      margin-left: 4px;
+      color: var(--muted);
+    }
+
+    .number-button.disabled-value {
+      color: #b3b8bc;
+    }
+
+    .panel-hint {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0 4px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(41, 49, 52, 0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-sheet {
+      position: fixed;
+      left: 50%;
+      bottom: calc(16px + var(--safe-bottom));
+      width: min(calc(100% - 28px), 520px);
+      transform: translate(-50%, 16px);
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(250, 248, 245, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 28px;
+      box-shadow: 0 26px 60px rgba(58, 66, 70, 0.2);
+      transition: transform 220ms ease, opacity 220ms ease;
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .settings-sheet.open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sheet-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 650;
+    }
+
+    .sheet-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .sheet-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .chip-row,
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 0 18px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
+    }
+
+    .chip.active {
+      background: rgba(44, 95, 95, 0.12);
+      color: var(--player);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
+    }
+
+    .toggle {
+      flex: 1 1 140px;
+      min-height: 52px;
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(226, 228, 230, 0.9);
+    }
+
+    .toggle strong {
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .toggle span {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .toggle.active {
+      background: rgba(44, 95, 95, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(44, 95, 95, 0.18);
+    }
+
+    .toggle-indicator {
+      width: 34px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 999px;
+      position: relative;
+      flex-shrink: 0;
+      transition: background-color 180ms ease;
+    }
+
+    .toggle-indicator::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      transition: transform 180ms ease;
+    }
+
+    .toggle.active .toggle-indicator {
+      background: rgba(44, 95, 95, 0.44);
+    }
+
+    .toggle.active .toggle-indicator::after {
+      transform: translateX(14px);
+    }
+
+    .toast,
+    .victory-card {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: 0 20px 42px rgba(55, 66, 72, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease;
+      text-align: center;
+    }
+
+    .toast {
+      bottom: calc(118px + var(--safe-bottom));
+      font-size: 0.9rem;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .victory-card {
+      top: 50%;
+      width: min(calc(100% - 48px), 320px);
+      padding: 22px 18px;
+      transform: translate(-50%, -44%);
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .victory-card.show {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+
+    .victory-card h2 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+    }
+
+    .victory-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px 999px 999px 2px;
+      opacity: 0;
+      animation: fall linear forwards;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @keyframes fillPop {
+      0% { transform: scale(0.78); }
+      70% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    @keyframes conflictFlash {
+      0% { box-shadow: inset 0 0 0 0 rgba(229, 115, 115, 0); }
+      50% { box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0.28); }
+      100% { box-shadow: inset 0 0 0 2px rgba(229, 115, 115, 0); }
+    }
+
+    @keyframes winGlow {
+      0% { box-shadow: inset 0 0 0 0 rgba(212, 175, 55, 0); }
+      50% { box-shadow: inset 0 0 0 2px rgba(212, 175, 55, 0.45); }
+      100% { box-shadow: inset 0 0 0 0 rgba(212, 175, 55, 0); }
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translate3d(0, -12vh, 0) rotate(0deg) scale(0.9);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.95;
+      }
+      100% {
+        transform: translate3d(var(--drift), 112vh, 0) rotate(360deg) scale(1.08);
+        opacity: 0;
+      }
+    }
+
+    @media (min-width: 700px) and (orientation: landscape) {
+      body {
+        padding-top: 24px;
+      }
+
+      .app {
+        width: min(100%, 960px);
+        grid-template-columns: minmax(320px, 1fr) minmax(260px, 320px);
+        grid-template-areas:
+          "top top"
+          "status status"
+          "board side"
+          "panel side";
+        align-items: start;
+      }
+
+      .topbar {
+        grid-area: top;
+      }
+
+      .status-card {
+        grid-area: status;
+      }
+
+      .board-card {
+        grid-area: board;
+      }
+
+      .toolbar {
+        grid-area: side;
+        align-self: start;
+      }
+
+      .number-panel {
+        grid-area: panel;
+        position: static;
+      }
+
+      .toast {
+        bottom: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="清风数独游戏">
+    <header class="topbar">
+      <div class="brand">
+        <h1 class="title">清风数独</h1>
+        <p class="subtitle">静下来，一格一格地把答案拼出来</p>
+      </div>
+      <button class="icon-button" id="settingsButton" type="button" aria-label="打开设置">
+        <span aria-hidden="true">⚙️</span>
+        <span>设置</span>
+      </button>
+    </header>
+
+    <section class="card status-card" aria-label="游戏状态">
+      <div class="status-group">
+        <span class="status-label">当前难度</span>
+        <span class="status-value" id="difficultyLabel">简单</span>
+      </div>
+      <div class="status-group">
+        <span class="status-label">剩余空格</span>
+        <span class="status-value" id="remainingLabel">0</span>
+      </div>
+      <div class="status-group">
+        <span class="status-label">当前模式</span>
+        <span class="status-value" id="modeLabel">填数字</span>
+      </div>
+    </section>
+
+    <section class="card board-card">
+      <div class="board" id="board" role="grid" aria-label="9乘9数独盘面"></div>
+    </section>
+
+    <section class="toolbar" aria-label="功能操作">
+      <button class="action-button" id="noteButton" type="button" aria-label="切换笔记模式">
+        <strong>✏️ 笔记</strong>
+        <span>候选数字</span>
+      </button>
+      <button class="action-button" id="undoButton" type="button" aria-label="撤销">
+        <strong>↶ 撤销</strong>
+        <span>回到上一步</span>
+      </button>
+      <button class="action-button" id="redoButton" type="button" aria-label="重做">
+        <strong>↷ 重做</strong>
+        <span>恢复操作</span>
+      </button>
+      <button class="action-button" id="resetButton" type="button" aria-label="重置当前游戏">
+        <strong>⟲ 重置</strong>
+        <span>清空填写</span>
+      </button>
+      <button class="action-button" id="newGameButton" type="button" aria-label="开始新游戏">
+        <strong>🎲 新游戏</strong>
+        <span>随机题目</span>
+      </button>
+    </section>
+
+    <section class="number-panel" aria-label="数字输入面板">
+      <div class="number-grid" id="numberGrid"></div>
+      <div class="panel-hint">
+        <span id="selectionHint">请先选择一个空格</span>
+        <span id="panelModeHint">当前为填数字模式</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <section class="settings-sheet" id="settingsSheet" aria-label="设置面板" aria-hidden="true">
+    <div class="sheet-head">
+      <h2 class="sheet-title">游戏设置</h2>
+      <button class="sheet-close" id="closeSettingsButton" type="button" aria-label="关闭设置">✕</button>
+    </div>
+    <div class="sheet-group">
+      <span class="sheet-label">选择难度</span>
+      <div class="chip-row" id="difficultyChips"></div>
+    </div>
+    <div class="sheet-group">
+      <span class="sheet-label">辅助反馈</span>
+      <div class="toggle-row">
+        <button class="toggle" id="conflictToggle" type="button" aria-label="切换自动冲突高亮">
+          <div>
+            <strong>自动冲突高亮</strong>
+            <span>实时标记重复数字</span>
+          </div>
+          <div class="toggle-indicator" aria-hidden="true"></div>
+        </button>
+        <button class="toggle" id="vibrateToggle" type="button" aria-label="切换震动反馈">
+          <div>
+            <strong>震动反馈</strong>
+            <span>支持设备时启用</span>
+          </div>
+          <div class="toggle-indicator" aria-hidden="true"></div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <section class="victory-card" id="victoryCard" aria-live="polite" aria-hidden="true">
+    <h2>🎉 胜利！🎉</h2>
+    <p>所有格子都安静地归位了，继续来一局吗？</p>
+  </section>
+  <div class="petals" id="petals" aria-hidden="true"></div>
+  <div class="sr-only" id="liveRegion" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "qingfeng-sudoku-state-v1";
+      const HISTORY_LIMIT = 200;
+      const DIFFICULTY_LABELS = {
+        easy: "简单",
+        medium: "中等",
+        hard: "困难"
+      };
+
+      const PUZZLE_BANK = buildPuzzleBank();
+
+      const elements = {
+        board: document.getElementById("board"),
+        numberGrid: document.getElementById("numberGrid"),
+        noteButton: document.getElementById("noteButton"),
+        undoButton: document.getElementById("undoButton"),
+        redoButton: document.getElementById("redoButton"),
+        resetButton: document.getElementById("resetButton"),
+        newGameButton: document.getElementById("newGameButton"),
+        settingsButton: document.getElementById("settingsButton"),
+        closeSettingsButton: document.getElementById("closeSettingsButton"),
+        settingsSheet: document.getElementById("settingsSheet"),
+        overlay: document.getElementById("overlay"),
+        difficultyLabel: document.getElementById("difficultyLabel"),
+        remainingLabel: document.getElementById("remainingLabel"),
+        modeLabel: document.getElementById("modeLabel"),
+        selectionHint: document.getElementById("selectionHint"),
+        panelModeHint: document.getElementById("panelModeHint"),
+        difficultyChips: document.getElementById("difficultyChips"),
+        conflictToggle: document.getElementById("conflictToggle"),
+        vibrateToggle: document.getElementById("vibrateToggle"),
+        toast: document.getElementById("toast"),
+        victoryCard: document.getElementById("victoryCard"),
+        petals: document.getElementById("petals"),
+        liveRegion: document.getElementById("liveRegion")
+      };
+
+      const state = {
+        settings: {
+          autoCheck: true,
+          vibration: true
+        },
+        difficulty: "easy",
+        currentPuzzleId: "",
+        puzzle: null,
+        board: [],
+        notes: [],
+        selected: null,
+        noteMode: false,
+        history: [],
+        future: [],
+        completed: false,
+        lastToastTimer: 0,
+        victoryTimer: 0
+      };
+
+      function buildPuzzleBank() {
+        const solvedBoards = [
+          "534678912672195348198342567859761423426853791713924856961537284287419635345286179",
+          "417369825632158947958724316825437169791586432346912758289643571573291684164875293",
+          "962314857134587269857269314349175628721638945685942731518496372476823591293751486",
+          "286179543573246819149538267835761924914825736627394158392457681451683972768912345",
+          "145327698839654127672918543496185372218473956753296481367542819581769234924831765"
+        ];
+
+        const specs = {
+          easy: [36, 37, 38, 39, 40],
+          medium: [45, 46, 47, 48, 49],
+          hard: [54, 55, 56, 57, 58]
+        };
+
+        const bank = {
+          easy: [],
+          medium: [],
+          hard: []
+        };
+
+        Object.entries(specs).forEach(([difficulty, blanks]) => {
+          blanks.forEach((blankCount, index) => {
+            const base = solvedBoards[index % solvedBoards.length];
+            const puzzle = createPuzzleFromSolution(base, blankCount, `${difficulty}-${index}`);
+            bank[difficulty].push({
+              id: `${difficulty}-${index + 1}`,
+              difficulty,
+              puzzle,
+              solution: base
+            });
+          });
+        });
+
+        return bank;
+      }
+
+      function createPuzzleFromSolution(solution, blankCount, seedText) {
+        const chars = solution.split("");
+        const indexes = Array.from({ length: 81 }, (_, index) => index);
+        const order = seededShuffle(indexes, seedFromString(seedText));
+        for (let i = 0; i < blankCount; i += 1) {
+          chars[order[i]] = "0";
+        }
+        return chars.join("");
+      }
+
+      function seedFromString(input) {
+        let seed = 0;
+        for (let i = 0; i < input.length; i += 1) {
+          seed = (seed * 31 + input.charCodeAt(i)) >>> 0;
+        }
+        return seed || 1;
+      }
+
+      function seededShuffle(items, seed) {
+        const array = items.slice();
+        let currentSeed = seed;
+        for (let i = array.length - 1; i > 0; i -= 1) {
+          currentSeed = (currentSeed * 1664525 + 1013904223) >>> 0;
+          const j = currentSeed % (i + 1);
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function emptyNotes() {
+        return Array.from({ length: 81 }, () => []);
+      }
+
+      function parseBoardString(boardString) {
+        return boardString.split("").map((char) => Number(char));
+      }
+
+      function deepCopyNotes(notes) {
+        return notes.map((cellNotes) => cellNotes.slice().sort((a, b) => a - b));
+      }
+
+      function snapshotState() {
+        return {
+          board: state.board.slice(),
+          notes: deepCopyNotes(state.notes)
+        };
+      }
+
+      function restoreSnapshot(snapshot) {
+        state.board = snapshot.board.slice();
+        state.notes = deepCopyNotes(snapshot.notes);
+      }
+
+      function pushHistory(kind, meta = {}) {
+        state.history.push({
+          kind,
+          meta,
+          before: snapshotState()
+        });
+        if (state.history.length > HISTORY_LIMIT) {
+          state.history.shift();
+        }
+        state.future = [];
+      }
+
+      function finalizeHistoryEntry() {
+        const entry = state.history[state.history.length - 1];
+        if (entry && !entry.after) {
+          entry.after = snapshotState();
+        }
+      }
+
+      function defaultGameState(difficulty = "easy") {
+        const puzzle = pickPuzzle(difficulty);
+        const board = parseBoardString(puzzle.puzzle);
+        return {
+          difficulty,
+          currentPuzzleId: puzzle.id,
+          puzzle,
+          board,
+          notes: emptyNotes(),
+          selected: null,
+          noteMode: false,
+          history: [],
+          future: [],
+          completed: false
+        };
+      }
+
+      function pickPuzzle(difficulty, excludeId) {
+        const list = PUZZLE_BANK[difficulty];
+        const filtered = excludeId ? list.filter((item) => item.id !== excludeId) : list.slice();
+        const pool = filtered.length ? filtered : list;
+        const randomIndex = Math.floor(Math.random() * pool.length);
+        return pool[randomIndex];
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            Object.assign(state, defaultGameState("easy"));
+            return;
+          }
+
+          const saved = JSON.parse(raw);
+          state.settings.autoCheck = saved.settings?.autoCheck !== false;
+          state.settings.vibration = saved.settings?.vibration !== false;
+          const difficulty = saved.difficulty in DIFFICULTY_LABELS ? saved.difficulty : "easy";
+          const puzzle = findPuzzle(saved.currentPuzzleId, difficulty) || pickPuzzle(difficulty);
+          const board = Array.isArray(saved.board) && saved.board.length === 81 ? saved.board.map(Number) : parseBoardString(puzzle.puzzle);
+          const notes = Array.isArray(saved.notes) && saved.notes.length === 81
+            ? saved.notes.map((entry) => Array.isArray(entry) ? entry.filter((n) => n >= 1 && n <= 9).map(Number) : [])
+            : emptyNotes();
+          const history = Array.isArray(saved.history)
+            ? saved.history.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry)
+            : [];
+          const future = Array.isArray(saved.future)
+            ? saved.future.slice(-HISTORY_LIMIT).filter(isValidHistoryEntry)
+            : [];
+
+          state.difficulty = difficulty;
+          state.currentPuzzleId = puzzle.id;
+          state.puzzle = puzzle;
+          state.board = board;
+          state.notes = notes;
+          state.selected = Number.isInteger(saved.selected) && saved.selected >= 0 && saved.selected < 81 ? saved.selected : null;
+          state.noteMode = Boolean(saved.noteMode);
+          state.history = history;
+          state.future = future;
+          state.completed = Boolean(saved.completed);
+        } catch (error) {
+          Object.assign(state, defaultGameState("easy"));
+        }
+      }
+
+      function isValidHistoryEntry(entry) {
+        return entry && entry.before && entry.after &&
+          Array.isArray(entry.before.board) && entry.before.board.length === 81 &&
+          Array.isArray(entry.after.board) && entry.after.board.length === 81 &&
+          Array.isArray(entry.before.notes) && entry.before.notes.length === 81 &&
+          Array.isArray(entry.after.notes) && entry.after.notes.length === 81;
+      }
+
+      function findPuzzle(id, difficulty) {
+        return PUZZLE_BANK[difficulty].find((item) => item.id === id) || null;
+      }
+
+      function saveState() {
+        const payload = {
+          settings: state.settings,
+          difficulty: state.difficulty,
+          currentPuzzleId: state.currentPuzzleId,
+          board: state.board,
+          notes: state.notes,
+          selected: state.selected,
+          noteMode: state.noteMode,
+          history: state.history.slice(-HISTORY_LIMIT),
+          future: state.future.slice(-HISTORY_LIMIT),
+          completed: state.completed
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      }
+
+      function createBoard() {
+        const fragment = document.createDocumentFragment();
+        for (let index = 0; index < 81; index += 1) {
+          const cell = document.createElement("button");
+          cell.type = "button";
+          cell.className = "cell";
+          cell.dataset.index = String(index);
+          cell.dataset.boxRight = String(index % 9 === 2 || index % 9 === 5);
+          cell.dataset.boxBottom = String(Math.floor(index / 9) === 2 || Math.floor(index / 9) === 5);
+          cell.setAttribute("role", "gridcell");
+          cell.setAttribute("aria-label", `第 ${Math.floor(index / 9) + 1} 行第 ${index % 9 + 1} 列`);
+
+          const value = document.createElement("span");
+          value.className = "value";
+          cell.appendChild(value);
+
+          const notes = document.createElement("div");
+          notes.className = "notes";
+          for (let n = 1; n <= 9; n += 1) {
+            const note = document.createElement("span");
+            note.className = "note";
+            note.textContent = String(n);
+            note.dataset.note = String(n);
+            notes.appendChild(note);
+          }
+          cell.appendChild(notes);
+          fragment.appendChild(cell);
+        }
+        elements.board.appendChild(fragment);
+      }
+
+      function createNumberPanel() {
+        const fragment = document.createDocumentFragment();
+        for (let n = 1; n <= 9; n += 1) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "number-button";
+          button.dataset.value = String(n);
+          button.setAttribute("aria-label", `输入数字 ${n}`);
+          button.textContent = String(n);
+          fragment.appendChild(button);
+        }
+
+        const clearButton = document.createElement("button");
+        clearButton.type = "button";
+        clearButton.className = "number-button";
+        clearButton.dataset.value = "0";
+        clearButton.setAttribute("aria-label", "清除当前格子");
+        clearButton.textContent = "⌫";
+        fragment.appendChild(clearButton);
+
+        elements.numberGrid.appendChild(fragment);
+      }
+
+      function createDifficultyChips() {
+        const fragment = document.createDocumentFragment();
+        Object.entries(DIFFICULTY_LABELS).forEach(([value, label]) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "chip";
+          chip.dataset.difficulty = value;
+          chip.textContent = label;
+          chip.setAttribute("aria-label", `切换到${label}难度`);
+          fragment.appendChild(chip);
+        });
+        elements.difficultyChips.appendChild(fragment);
+      }
+
+      function rowOf(index) {
+        return Math.floor(index / 9);
+      }
+
+      function colOf(index) {
+        return index % 9;
+      }
+
+      function boxOf(index) {
+        return Math.floor(rowOf(index) / 3) * 3 + Math.floor(colOf(index) / 3);
+      }
+
+      function puzzleGivenAt(index) {
+        return state.puzzle.puzzle[index] !== "0";
+      }
+
+      function getConflicts(board) {
+        const conflictSet = new Set();
+
+        function markGroup(indexes) {
+          const buckets = new Map();
+          indexes.forEach((index) => {
+            const value = board[index];
+            if (!value || puzzleGivenAt(index)) {
+              return;
+            }
+            if (!buckets.has(value)) {
+              buckets.set(value, []);
+            }
+            buckets.get(value).push(index);
+          });
+          buckets.forEach((group) => {
+            if (group.length > 1) {
+              group.forEach((index) => conflictSet.add(index));
+            }
+          });
+        }
+
+        for (let row = 0; row < 9; row += 1) {
+          markGroup(Array.from({ length: 9 }, (_, col) => row * 9 + col));
+        }
+        for (let col = 0; col < 9; col += 1) {
+          markGroup(Array.from({ length: 9 }, (_, row) => row * 9 + col));
+        }
+        for (let box = 0; box < 9; box += 1) {
+          const startRow = Math.floor(box / 3) * 3;
+          const startCol = (box % 3) * 3;
+          const indexes = [];
+          for (let r = 0; r < 3; r += 1) {
+            for (let c = 0; c < 3; c += 1) {
+              indexes.push((startRow + r) * 9 + (startCol + c));
+            }
+          }
+          markGroup(indexes);
+        }
+
+        return conflictSet;
+      }
+
+      function selectCell(index, { silent = false } = {}) {
+        state.selected = index;
+        if (!silent) {
+          pulseVibration(50);
+        }
+        render();
+        saveState();
+      }
+
+      function clearSelection() {
+        state.selected = null;
+        render();
+        saveState();
+      }
+
+      function toggleNoteMode() {
+        state.noteMode = !state.noteMode;
+        pulseVibration(50);
+        render();
+        saveState();
+      }
+
+      function handleCellPress(index) {
+        if (state.selected === index) {
+          return;
+        }
+        selectCell(index);
+      }
+
+      function canEdit(index) {
+        return index !== null && !puzzleGivenAt(index);
+      }
+
+      function applyInput(rawValue) {
+        if (state.selected === null || !canEdit(state.selected) || state.completed) {
+          showToast("请先选择一个可填写的空格");
+          return;
+        }
+
+        const value = Number(rawValue);
+        pushHistory(state.noteMode ? "note" : "fill", {
+          index: state.selected,
+          value
+        });
+
+        if (state.noteMode) {
+          toggleNoteAt(state.selected, value);
+        } else {
+          setCellValue(state.selected, value);
+        }
+
+        finalizeHistoryEntry();
+        state.completed = false;
+        render({ animatedIndex: state.selected, recentConflictCheck: true });
+        saveState();
+        maybeCelebrate();
+      }
+
+      function toggleNoteAt(index, value) {
+        if (value === 0) {
+          state.notes[index] = [];
+          return;
+        }
+
+        if (state.board[index] !== 0) {
+          state.board[index] = 0;
+        }
+
+        const notes = new Set(state.notes[index]);
+        if (notes.has(value)) {
+          notes.delete(value);
+        } else {
+          notes.add(value);
+        }
+        state.notes[index] = Array.from(notes).sort((a, b) => a - b);
+      }
+
+      function setCellValue(index, value) {
+        const previous = state.board[index];
+        if (previous === value) {
+          state.board[index] = 0;
+        } else {
+          state.board[index] = value;
+        }
+        if (value !== 0) {
+          state.notes[index] = [];
+        }
+      }
+
+      function undo() {
+        const entry = state.history.pop();
+        if (!entry) {
+          return;
+        }
+        state.future.push(entry);
+        restoreSnapshot(entry.before);
+        state.completed = false;
+        pulseVibration(50);
+        render();
+        saveState();
+      }
+
+      function redo() {
+        const entry = state.future.pop();
+        if (!entry) {
+          return;
+        }
+        state.history.push(entry);
+        restoreSnapshot(entry.after);
+        state.completed = false;
+        pulseVibration(50);
+        render();
+        saveState();
+        maybeCelebrate();
+      }
+
+      function resetGame() {
+        pushHistory("reset");
+        state.board = parseBoardString(state.puzzle.puzzle);
+        state.notes = emptyNotes();
+        state.selected = null;
+        state.completed = false;
+        finalizeHistoryEntry();
+        pulseVibration(50);
+        render();
+        saveState();
+        showToast("当前题目已重置");
+      }
+
+      function startNewGame(nextDifficulty = state.difficulty, options = {}) {
+        const puzzle = pickPuzzle(nextDifficulty, options.keepDifferent === false ? undefined : state.currentPuzzleId);
+        state.difficulty = nextDifficulty;
+        state.currentPuzzleId = puzzle.id;
+        state.puzzle = puzzle;
+        state.board = parseBoardString(puzzle.puzzle);
+        state.notes = emptyNotes();
+        state.selected = null;
+        state.noteMode = false;
+        state.history = [];
+        state.future = [];
+        state.completed = false;
+        render();
+        saveState();
+        showToast(`${DIFFICULTY_LABELS[nextDifficulty]}难度，新的题目已准备好`);
+      }
+
+      function setDifficulty(nextDifficulty) {
+        if (nextDifficulty === state.difficulty) {
+          return;
+        }
+        pulseVibration(50);
+        startNewGame(nextDifficulty, { keepDifferent: false });
+      }
+
+      function toggleSetting(key) {
+        state.settings[key] = !state.settings[key];
+        if (key === "vibration" && state.settings[key]) {
+          navigator.vibrate?.(30);
+        }
+        render();
+        saveState();
+      }
+
+      function openSettings() {
+        elements.overlay.hidden = false;
+        elements.settingsSheet.classList.add("open");
+        elements.overlay.classList.add("open");
+        elements.settingsSheet.setAttribute("aria-hidden", "false");
+      }
+
+      function closeSettings() {
+        elements.settingsSheet.classList.remove("open");
+        elements.overlay.classList.remove("open");
+        elements.settingsSheet.setAttribute("aria-hidden", "true");
+        window.setTimeout(() => {
+          if (!elements.overlay.classList.contains("open")) {
+            elements.overlay.hidden = true;
+          }
+        }, 220);
+      }
+
+      function showToast(message) {
+        elements.toast.textContent = message;
+        elements.toast.classList.add("show");
+        window.clearTimeout(state.lastToastTimer);
+        state.lastToastTimer = window.setTimeout(() => {
+          elements.toast.classList.remove("show");
+        }, 1600);
+        announce(message);
+      }
+
+      function announce(message) {
+        elements.liveRegion.textContent = "";
+        window.setTimeout(() => {
+          elements.liveRegion.textContent = message;
+        }, 20);
+      }
+
+      function pulseVibration(duration) {
+        if (!state.settings.vibration) {
+          return;
+        }
+        navigator.vibrate?.(duration);
+      }
+
+      function maybeCelebrate() {
+        const conflicts = getConflicts(state.board);
+        const isFilled = state.board.every((value) => value >= 1 && value <= 9);
+        if (!isFilled || conflicts.size > 0 || state.completed) {
+          return;
+        }
+        state.completed = true;
+        render();
+        saveState();
+        showVictory();
+      }
+
+      function showVictory() {
+        elements.victoryCard.classList.add("show");
+        elements.victoryCard.setAttribute("aria-hidden", "false");
+        pulseVibration(200);
+        sprinklePetals();
+        flashBoard();
+        announce("胜利，当前数独已完成");
+        window.clearTimeout(state.victoryTimer);
+        state.victoryTimer = window.setTimeout(() => {
+          elements.victoryCard.classList.remove("show");
+          elements.victoryCard.setAttribute("aria-hidden", "true");
+        }, 2200);
+      }
+
+      function flashBoard() {
+        elements.board.querySelectorAll(".cell").forEach((cell, index) => {
+          window.setTimeout(() => {
+            cell.classList.add("win-glow");
+            window.setTimeout(() => cell.classList.remove("win-glow"), 220);
+          }, (index % 9) * 12);
+        });
+      }
+
+      function sprinklePetals() {
+        elements.petals.innerHTML = "";
+        const colors = ["#f6c8cf", "#f2d8b8", "#d9eadf", "#f7dfea", "#efe2a6"];
+        for (let i = 0; i < 26; i += 1) {
+          const petal = document.createElement("span");
+          petal.className = "petal";
+          petal.style.left = `${Math.random() * 100}%`;
+          petal.style.top = `${-8 - Math.random() * 14}%`;
+          petal.style.background = colors[i % colors.length];
+          petal.style.setProperty("--drift", `${(Math.random() - 0.5) * 180}px`);
+          petal.style.animationDuration = `${2400 + Math.random() * 1100}ms`;
+          petal.style.animationDelay = `${Math.random() * 160}ms`;
+          elements.petals.appendChild(petal);
+        }
+        window.setTimeout(() => {
+          elements.petals.innerHTML = "";
+        }, 3400);
+      }
+
+      function attachEvents() {
+        elements.board.addEventListener("click", (event) => {
+          const target = event.target.closest(".cell");
+          if (!target) {
+            return;
+          }
+          handleCellPress(Number(target.dataset.index));
+        });
+
+        elements.numberGrid.addEventListener("click", (event) => {
+          const button = event.target.closest(".number-button");
+          if (!button) {
+            return;
+          }
+          pulseVibration(50);
+          applyInput(button.dataset.value);
+        });
+
+        elements.noteButton.addEventListener("click", toggleNoteMode);
+        elements.undoButton.addEventListener("click", undo);
+        elements.redoButton.addEventListener("click", redo);
+        elements.resetButton.addEventListener("click", resetGame);
+        elements.newGameButton.addEventListener("click", () => {
+          pulseVibration(50);
+          startNewGame(state.difficulty);
+        });
+        elements.settingsButton.addEventListener("click", () => {
+          pulseVibration(50);
+          openSettings();
+        });
+        elements.closeSettingsButton.addEventListener("click", closeSettings);
+        elements.overlay.addEventListener("click", closeSettings);
+        elements.conflictToggle.addEventListener("click", () => toggleSetting("autoCheck"));
+        elements.vibrateToggle.addEventListener("click", () => toggleSetting("vibration"));
+        elements.difficultyChips.addEventListener("click", (event) => {
+          const chip = event.target.closest(".chip");
+          if (!chip) {
+            return;
+          }
+          closeSettings();
+          setDifficulty(chip.dataset.difficulty);
+        });
+
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeSettings();
+            return;
+          }
+
+          if (event.key.toLowerCase() === "z" && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+            event.preventDefault();
+            undo();
+            return;
+          }
+
+          if ((event.key.toLowerCase() === "z" && (event.ctrlKey || event.metaKey) && event.shiftKey) ||
+              (event.key.toLowerCase() === "y" && (event.ctrlKey || event.metaKey))) {
+            event.preventDefault();
+            redo();
+            return;
+          }
+
+          if (event.key.toLowerCase() === "n") {
+            event.preventDefault();
+            toggleNoteMode();
+            return;
+          }
+
+          if (/^[1-9]$/.test(event.key)) {
+            event.preventDefault();
+            applyInput(event.key);
+            return;
+          }
+
+          if (["Backspace", "Delete", "0"].includes(event.key)) {
+            event.preventDefault();
+            applyInput("0");
+            return;
+          }
+
+          if (state.selected === null) {
+            return;
+          }
+
+          const movement = {
+            ArrowUp: -9,
+            ArrowDown: 9,
+            ArrowLeft: -1,
+            ArrowRight: 1
+          };
+
+          if (event.key in movement) {
+            event.preventDefault();
+            const next = moveSelection(state.selected, event.key);
+            if (next !== null) {
+              selectCell(next, { silent: true });
+            }
+          }
+        });
+      }
+
+      function moveSelection(index, key) {
+        const row = rowOf(index);
+        const col = colOf(index);
+        if (key === "ArrowUp" && row > 0) return index - 9;
+        if (key === "ArrowDown" && row < 8) return index + 9;
+        if (key === "ArrowLeft" && col > 0) return index - 1;
+        if (key === "ArrowRight" && col < 8) return index + 1;
+        return null;
+      }
+
+      function render(options = {}) {
+        const conflicts = state.settings.autoCheck ? getConflicts(state.board) : new Set();
+        const selectedValue = state.selected !== null ? state.board[state.selected] : 0;
+        const selectedRow = state.selected !== null ? rowOf(state.selected) : -1;
+        const selectedCol = state.selected !== null ? colOf(state.selected) : -1;
+        const selectedBox = state.selected !== null ? boxOf(state.selected) : -1;
+        const recentConflictIndexes = options.recentConflictCheck ? Array.from(conflicts) : [];
+
+        elements.board.querySelectorAll(".cell").forEach((cell, index) => {
+          const value = state.board[index];
+          const isGiven = puzzleGivenAt(index);
+          const isSelected = state.selected === index;
+          const isPeer = state.selected !== null && !isSelected &&
+            (rowOf(index) === selectedRow || colOf(index) === selectedCol || boxOf(index) === selectedBox);
+          const isSameValue = selectedValue !== 0 && value === selectedValue && !isSelected;
+          const isConflict = conflicts.has(index);
+
+          cell.classList.toggle("given", isGiven);
+          cell.classList.toggle("player", !isGiven && value !== 0);
+          cell.classList.toggle("selected", isSelected);
+          cell.classList.toggle("peer", isPeer);
+          cell.classList.toggle("same-value", isSameValue);
+          cell.classList.toggle("conflict", isConflict);
+
+          const valueNode = cell.querySelector(".value");
+          valueNode.textContent = value ? String(value) : "";
+
+          const notesNode = cell.querySelector(".notes");
+          notesNode.hidden = value !== 0;
+          notesNode.querySelectorAll(".note").forEach((note) => {
+            const noteValue = Number(note.dataset.note);
+            note.classList.toggle("visible", state.notes[index].includes(noteValue) && value === 0);
+          });
+
+          const positionLabel = `第 ${rowOf(index) + 1} 行第 ${colOf(index) + 1} 列`;
+          const stateLabel = isGiven
+            ? `预置数字 ${value}`
+            : value
+              ? `已填数字 ${value}`
+              : state.notes[index].length
+                ? `笔记 ${state.notes[index].join("、")}`
+                : "空格";
+          cell.setAttribute("aria-label", `${positionLabel}，${stateLabel}`);
+
+          if (options.animatedIndex === index && value !== 0 && !state.noteMode) {
+            cell.classList.remove("fill-pop");
+            void cell.offsetWidth;
+            cell.classList.add("fill-pop");
+            window.setTimeout(() => cell.classList.remove("fill-pop"), 260);
+          }
+        });
+
+        if (recentConflictIndexes.length) {
+          recentConflictIndexes.forEach((index) => {
+            const cell = elements.board.querySelector(`.cell[data-index="${index}"]`);
+            if (!cell) {
+              return;
+            }
+            cell.classList.remove("shake", "conflict-flash");
+            void cell.offsetWidth;
+            cell.classList.add("shake", "conflict-flash");
+            window.setTimeout(() => {
+              cell.classList.remove("shake", "conflict-flash");
+            }, 420);
+          });
+          pulseVibration(30);
+        }
+
+        elements.numberGrid.querySelectorAll(".number-button").forEach((button) => {
+          const buttonValue = Number(button.dataset.value);
+          const disabled = state.selected === null || !canEdit(state.selected) || state.completed;
+          button.disabled = disabled;
+          button.classList.toggle("selected-value", state.selected !== null && state.board[state.selected] === buttonValue && buttonValue !== 0);
+          button.classList.toggle("note-target", state.noteMode && buttonValue !== 0);
+          button.classList.toggle("disabled-value", disabled);
+        });
+
+        elements.noteButton.classList.toggle("active", state.noteMode);
+        elements.undoButton.disabled = state.history.length === 0;
+        elements.redoButton.disabled = state.future.length === 0;
+
+        elements.difficultyLabel.textContent = DIFFICULTY_LABELS[state.difficulty];
+        elements.remainingLabel.textContent = String(state.board.filter((value) => value === 0).length);
+        elements.modeLabel.textContent = state.noteMode ? "笔记模式" : "填数字";
+        elements.selectionHint.textContent = state.selected === null
+          ? "请先选择一个空格"
+          : canEdit(state.selected)
+            ? `已选中 第 ${rowOf(state.selected) + 1} 行第 ${colOf(state.selected) + 1} 列`
+            : "当前格子是预置数字，不可编辑";
+        elements.panelModeHint.textContent = state.noteMode ? "当前为笔记模式" : "当前为填数字模式";
+
+        elements.conflictToggle.classList.toggle("active", state.settings.autoCheck);
+        elements.vibrateToggle.classList.toggle("active", state.settings.vibration);
+
+        elements.difficultyChips.querySelectorAll(".chip").forEach((chip) => {
+          chip.classList.toggle("active", chip.dataset.difficulty === state.difficulty);
+        });
+      }
+
+      loadState();
+      createBoard();
+      createNumberPanel();
+      createDifficultyChips();
+      attachEvents();
+      render();
+      maybeCelebrate();
+    })();
+  </script>
+</body>
+</html>
